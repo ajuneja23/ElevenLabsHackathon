@@ -68,4 +68,63 @@ export async function analyzeSentiment(question: string) {
       .slice(1)
       .join('\n') || 'No conclusion available'
   };
+}
+
+export async function getDescription(title: string) {
+  const prompt = `Write a detailed analysis of "${title}" in markdown format. Include:
+- Key background information
+- Main points of discussion
+- Current relevance and implications
+- Notable statistics or data (if applicable)
+
+Use markdown formatting with:
+- Bullet points for lists
+- **Bold** for important terms
+- ### Headers for sections
+Keep it concise but informative.`;
+
+  try {
+    console.log('Sending request to Perplexity with title:', title);
+    
+    const response = await fetch('https://api.perplexity.ai/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'mistral-7b-instruct',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a helpful assistant that provides detailed market analysis.'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        max_tokens: 1000,
+        temperature: 0.7
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('API Error Response:', errorText);
+      throw new Error(`Perplexity API error (${response.status}): ${errorText}`);
+    }
+
+    const data = await response.json();
+    console.log('API Response:', data);
+
+    if (!data.choices?.[0]?.message?.content) {
+      throw new Error('Invalid response format from Perplexity API');
+    }
+
+    return data.choices[0].message.content;
+  } catch (error) {
+    console.error('Error in getDescription:', error);
+    throw error;
+  }
 } 

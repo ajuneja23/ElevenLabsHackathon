@@ -1,6 +1,6 @@
 import Image from "next/image"
 import { getMarketDetails } from "@/lib/kalshi"
-import { analyzeSentiment } from "@/lib/openai"
+import { analyzeSentiment, getDescription } from "@/lib/openai"
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
@@ -19,6 +19,10 @@ export default async function MarketDetails({ url }: { url: string }) {
   try {
     const market = await getMarketDetails(url)
     const sentimentAnalysis = await analyzeSentiment(market.title)
+    const description = await getDescription(market.title)
+    
+    console.log('Market title:', market.title);
+    console.log('Description received:', description);
 
     return (
       <div className="mx-auto max-w-6xl text-white">
@@ -83,36 +87,47 @@ export default async function MarketDetails({ url }: { url: string }) {
           {/* Sentiment Analysis Section */}
           <div className="mb-8 rounded-lg bg-gray-800 p-6">
             <h2 className="mb-4 text-xl font-semibold">Social Sentiment Analysis</h2>
-            <div className="prose prose-invert prose-lg max-w-none 
-              prose-headings:text-blue-300 
-              prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg
-              prose-p:text-gray-300 
-              prose-strong:text-blue-200 
-              prose-ul:text-gray-300 prose-li:marker:text-blue-400
-              prose-a:text-blue-400 hover:prose-a:text-blue-300
-              prose-blockquote:border-blue-400 prose-blockquote:text-gray-400
-              prose-pre:bg-gray-900 prose-pre:border prose-pre:border-gray-700">
-              <Markdown remarkPlugins={[remarkGfm]}>
-                {sentimentAnalysis}
-              </Markdown>
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="rounded-lg bg-green-950/20 p-4 border border-green-900">
+                <h3 className="text-lg font-medium text-green-400 mb-3">Positive</h3>
+                <div className="prose prose-sm prose-invert max-w-none text-green-300">
+                  <Markdown remarkPlugins={[remarkGfm]}>
+                    {sentimentAnalysis.positive}
+                  </Markdown>
+                </div>
+              </div>
+              
+              <div className="rounded-lg bg-red-950/20 p-4 border border-red-900">
+                <h3 className="text-lg font-medium text-red-400 mb-3">Negative</h3>
+                <div className="prose prose-sm prose-invert max-w-none text-red-300">
+                  <Markdown remarkPlugins={[remarkGfm]}>
+                    {sentimentAnalysis.negative}
+                  </Markdown>
+                </div>
+              </div>
+
+              <div className="rounded-lg bg-blue-950/20 p-4 border border-blue-900">
+                <h3 className="text-lg font-medium text-blue-400 mb-3">Neutral</h3>
+                <div className="prose prose-sm prose-invert max-w-none text-blue-300">
+                  <Markdown remarkPlugins={[remarkGfm]}>
+                    {sentimentAnalysis.neutral}
+                  </Markdown>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Market Description */}
           <div className="rounded-lg bg-gray-800 p-6">
             <h2 className="mb-2 text-xl font-semibold">Description</h2>
-            <div className="prose prose-invert prose-lg max-w-none 
-              prose-headings:text-blue-300 
-              prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg
-              prose-p:text-gray-300 
-              prose-strong:text-blue-200 
-              prose-ul:text-gray-300 prose-li:marker:text-blue-400
-              prose-a:text-blue-400 hover:prose-a:text-blue-300
-              prose-blockquote:border-blue-400 prose-blockquote:text-gray-400
-              prose-pre:bg-gray-900 prose-pre:border prose-pre:border-gray-700">
-              <Markdown remarkPlugins={[remarkGfm]}>
-                {market.summary}
-              </Markdown>
+            <div className="prose prose-invert max-w-none text-gray-300">
+              {description ? (
+                <Markdown remarkPlugins={[remarkGfm]}>
+                  {description}
+                </Markdown>
+              ) : (
+                <p>Loading description...</p>
+              )}
             </div>
           </div>
 
