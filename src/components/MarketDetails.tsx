@@ -5,6 +5,7 @@ import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import BackButton from './BackButton'
 import DescriptionAudio from './DescriptionAudio'
+import AgenticSearchButton from '@/components/AgenticSearchButton'
 
 export default async function MarketDetails({ url }: { url: string }) {
   if (!url) {
@@ -137,6 +138,14 @@ export default async function MarketDetails({ url }: { url: string }) {
                   <p>Loading description...</p>
                 )}
               </div>
+            </div>
+
+            {/* Add Agentic Search Button */}
+            <div className="mt-8 flex justify-center">
+              <AgenticSearchButton 
+                marketTitle={market.title}
+                description={description || ''}
+              />
             </div>
 
             {/* Last Updated */}
