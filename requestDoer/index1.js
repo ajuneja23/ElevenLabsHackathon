@@ -7,7 +7,7 @@ import cors from "cors";
 const app = express();
 const PORT = process.env.PORT || 5051;
 const groq = new Groq({
-  apiKey: "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",
+  apiKey: "======",
 });
 
 app.use(express.json());
